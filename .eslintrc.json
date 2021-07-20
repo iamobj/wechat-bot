@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "env": {
+      "node": true
+  },
+  "parserOptions": {
+      "sourceType": "module",
+      "ecmaVersion": 2020
+  },
+  "plugins": [],
+  "extends": [
+      "standard"
+  ],
+  "rules": {
+    "space-before-function-paren": ["error", "never"],
+    "no-async-promise-executor": "warn"
+  }
+}
