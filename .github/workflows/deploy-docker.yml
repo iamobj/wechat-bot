@@ -30,7 +30,7 @@ jobs:
           DOCKER_RUN_PARAMS: -p 4300:4300
         # 打印下 commit id
         run: |
-          export IMAGE_TAG=${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${${{github.event.commits[0].id}}:0:7}
+          export IMAGE_TAG=${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${"${{github.event.commits[0].id}}":0:7}
           echo ${{toJSON(github.event.commits[0])}}
           echo $IMAGE_TAG
       
