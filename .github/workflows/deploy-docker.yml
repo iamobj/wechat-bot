@@ -10,7 +10,7 @@ on:
       - '.dockerignore'
 
 jobs:
-  部署:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
