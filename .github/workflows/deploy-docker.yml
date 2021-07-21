@@ -32,9 +32,9 @@ jobs:
         run: |
           fullCommit="${{ github.event.commits[0].id }}"
 
-        - namme: 测试
-          run: |
-            echo $fullCommit
+      - namme: 测试
+        run: |
+          echo $fullCommit
       
       # - name: 构建并推送
       #   run: |
