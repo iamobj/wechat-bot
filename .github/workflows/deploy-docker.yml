@@ -32,7 +32,7 @@ jobs:
         run: |
           fullCommit="${{ github.event.commits[0].id }}"
 
-      - namme: 测试
+      - name: 测试
         run: |
           echo $fullCommit
       
