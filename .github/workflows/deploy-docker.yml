@@ -31,6 +31,7 @@ jobs:
         # 定义IMAGE_TAG变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
         run: |
           fullCommit="${{ github.event.commits[0].id }}"
+          IMAGE_TAG="${DOCKER_REGISTRY_URL}"
 
       - name: 测试
         run: |
