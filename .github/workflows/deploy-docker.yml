@@ -24,14 +24,14 @@ jobs:
         env:
           # docker 私库地址
           DOCKER_REGISTRY_URL: registry.cn-shenzhen.aliyuncs.com
-          # image tag 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
-          IMAGE_TAG: ${{ ${github.event.commits[0]:0:7} }}
           # 容器名称
           CONTAINER_NAME: wechat-bot
           # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
           DOCKER_RUN_PARAMS: -p 4300:4300
         # 打印下 commit id
         run: |
+          # 设置IMAGE_TAG环境变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
+          export IMAGE_TAG=${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${{github.event.commits[0]:0:7}}
           echo ${{toJSON(github.event.commits[0])}}
           echo $IMAGE_TAG
       
