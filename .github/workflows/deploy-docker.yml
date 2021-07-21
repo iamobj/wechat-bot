@@ -48,11 +48,11 @@ jobs:
           # 推送镜像到镜像仓库
           docker push $IMAGE_TAG
         
-        - name: 通知服务器更新部署
-          uses: JimCronqvist/action-ssh@master
-          with:
-              hosts: ${{ secrets.SERVICE_HOSTS }}
-              privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
-              debug: false
-              command: |
-                /root/update_docker.sh $DOCKER_REGISTRY_URL ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
+      - name: 通知服务器更新部署
+        uses: JimCronqvist/action-ssh@master
+        with:
+            hosts: ${{ secrets.SERVICE_HOSTS }}
+            privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
+            debug: false
+            command: |
+              /root/update_docker.sh $DOCKER_REGISTRY_URL ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
