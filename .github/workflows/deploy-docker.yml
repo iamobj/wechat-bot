@@ -28,10 +28,12 @@ jobs:
           CONTAINER_NAME: wechat-bot
           # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
           DOCKER_RUN_PARAMS: -p 4300:4300
-        # 打印下 commit id
+        # 定义IMAGE_TAG变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
         run: |
           fullCommit="${{ github.event.commits[0].id }}" && \
           echo $fullCommit
+          IMAGE_TAG="${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${fullCommit:0:7}" \
+          echo $IMAGE_TAG
       
       # - name: 构建并推送
       #   run: |
