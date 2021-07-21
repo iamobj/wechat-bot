@@ -10,7 +10,7 @@ on:
       - '.dockerignore'
 
 jobs:
-  构建docker镜像并推送到阿里云docker镜像仓库:
+  部署:
     runs-on: ubuntu-latest
 
     steps:
