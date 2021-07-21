@@ -1,0 +1,58 @@
+name: build docker image and deploy
+
+on:
+  push:
+    # 以下路径/文件才会触发，关于路径条件官方文档https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onpushpull_requestpaths
+    paths:
+      - '.github/**'
+      - 'src/**'
+      - 'Dockerfile'
+      - '.dockerignore'
+
+jobs:
+  构建docker镜像并推送到阿里云docker镜像仓库:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码到本地
+        uses: actions/checkout@v2
+
+      - name: 设置Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: 设置环境变量
+        env:
+          # docker 私库地址
+          DOCKER_REGISTRY_URL: registry.cn-shenzhen.aliyuncs.com
+          # image tag 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
+          IMAGE_TAG: ${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${${{github.event.commits[0].id}}:0:7}
+          # 容器名称
+          CONTAINER_NAME: wechat-bot
+          # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
+          DOCKER_RUN_PARAMS: -p 4300:4300
+        # 打印下 commit id
+        run: echo ${{github.event.commits[0].id}}
+      
+      - name: 构建并推送
+        run: |
+          docker version
+          # 登录阿里云镜像仓库
+          docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }} $DOCKER_REGISTRY_URL
+
+          # 使用 buildx 可以同时构建 X86 和 ARM 架构的镜像
+          docker buildx build \
+            --platform=linux/amd64,linux/arm/v7,linux/arm64 \
+            --file ./Dockerfile . \
+            --tag $IMAGE_TAG
+          
+          # 推送镜像到镜像仓库
+          docker push $IMAGE_TAG
+        
+        - name: 通知服务器更新部署
+          uses: JimCronqvist/action-ssh@master
+          with:
+              hosts: ${{ secrets.SERVICE_HOSTS }}
+              privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
+              debug: false
+              command: |
+                /root/update_docker.sh $DOCKER_REGISTRY_URL ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
