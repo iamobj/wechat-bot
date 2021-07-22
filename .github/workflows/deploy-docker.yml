@@ -61,4 +61,5 @@ jobs:
             privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
             debug: true
             command: |
-              /root/update_docker.sh ${{env.DOCKER_REGISTRY_URL}} ${{secrets.DOCKER_USERNAME}} ${{secrets.DOCKER_PASSWORD}} ${{env.IMAGE_TAG}} ${{env.CONTAINER_NAME}} ${{env.DOCKER_RUN_PARAMS}}
+              echo "测试是否连通"
+              # /root/update_docker.sh ${{env.DOCKER_REGISTRY_URL}} ${{secrets.DOCKER_USERNAME}} ${{secrets.DOCKER_PASSWORD}} ${{env.IMAGE_TAG}} ${{env.CONTAINER_NAME}} ${{env.DOCKER_RUN_PARAMS}}
