@@ -42,7 +42,7 @@ jobs:
         # 使用 buildx 可以同时构建 X86 和 ARM 架构的镜像
         run: |
           docker version
-          docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }} $DOCKER_REGISTRY_URL
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} $DOCKER_REGISTRY_URL
       #     docker buildx build \
       #       --platform=linux/amd64,linux/arm/v7,linux/arm64 \
       #       --file ./Dockerfile . \
