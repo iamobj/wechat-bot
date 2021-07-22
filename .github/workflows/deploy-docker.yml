@@ -12,14 +12,13 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     env:
       # docker 私库地址
       DOCKER_REGISTRY_URL: registry.cn-shenzhen.aliyuncs.com
       # 容器名称
       CONTAINER_NAME: wechat-bot
       # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
-      DOCKER_RUN_PARAMS: -p 4300:4300
+      DOCKER_RUN_PARAMS: -p 4300:4300 --restart=always
 
     steps:
       - name: 检出代码到本地
@@ -61,4 +60,4 @@ jobs:
             username: ${{secrets.SERVICE_USERNAME}}
             key: ${{secrets.SERVICE_PRIVATE_KEY}}
             script: |
-              /root/update_docker.sh ${{env.DOCKER_REGISTRY_URL}} ${{secrets.DOCKER_USERNAME}} ${{secrets.DOCKER_PASSWORD}} ${{env.IMAGE_TAG}} ${{env.CONTAINER_NAME}} ${{env.DOCKER_RUN_PARAMS}}
+              /root/update_docker.sh ${{env.DOCKER_REGISTRY_URL}} ${{secrets.DOCKER_USERNAME}} ${{secrets.DOCKER_PASSWORD}} ${{env.IMAGE_TAG}} ${{env.CONTAINER_NAME}} "${{env.DOCKER_RUN_PARAMS}}"
