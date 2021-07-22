@@ -42,20 +42,21 @@ jobs:
       
       - name: 构建并推送
         run: |
+          echo ${{secrets.DOCKER_USERNAME}}
           docker version
-          docker login --username $DOCKER_USERNAME --password-stdin $DOCKER_PASSWORD $DOCKER_REGISTRY_URL
-          # 使用 buildx 可以同时构建 X86 和 ARM 架构的镜像
-          docker buildx build \
-            --platform=linux/amd64,linux/arm/v7,linux/arm64 \
-            --file ./Dockerfile . \
-            --tag $IMAGE_TAG
-          docker push $IMAGE_TAG
+      #     docker login --username $DOCKER_USERNAME --password-stdin $DOCKER_PASSWORD $DOCKER_REGISTRY_URL
+      #     # 使用 buildx 可以同时构建 X86 和 ARM 架构的镜像
+      #     docker buildx build \
+      #       --platform=linux/amd64,linux/arm/v7,linux/arm64 \
+      #       --file ./Dockerfile . \
+      #       --tag $IMAGE_TAG
+      #     docker push $IMAGE_TAG
         
-      - name: 通知服务器更新部署
-        uses: JimCronqvist/action-ssh@master
-        with:
-            hosts: ${{ secrets.SERVICE_HOSTS }}
-            privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
-            debug: false
-            command: |
-              /root/update_docker.sh $DOCKER_REGISTRY_URL $DOCKER_USERNAME $DOCKER_PASSWORD $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
+      # - name: 通知服务器更新部署
+      #   uses: JimCronqvist/action-ssh@master
+      #   with:
+      #       hosts: ${{ secrets.SERVICE_HOSTS }}
+      #       privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
+      #       debug: false
+      #       command: |
+      #         /root/update_docker.sh $DOCKER_REGISTRY_URL $DOCKER_USERNAME $DOCKER_PASSWORD $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
