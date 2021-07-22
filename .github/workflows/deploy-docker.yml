@@ -41,7 +41,7 @@ jobs:
 
       - name: 登录docker镜像私库
         run: |
-          docker login ${{evn.DOCKER_REGISTRY_URL}} -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+          docker login ${{env.DOCKER_REGISTRY_URL}} -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
         # uses: docker/login-action@v1
         # with:
         #   registry: $DOCKER_REGISTRY_URL
