@@ -55,11 +55,10 @@ jobs:
       #     push: true
         
       - name: 通知服务器更新部署
-        uses: JimCronqvist/action-ssh@master
+        uses: appleboy/ssh-action@master
         with:
-            hosts: ${{ secrets.SERVICE_HOSTS }}
-            privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
-            debug: true
-            command: |
+            host: ${{ secrets.SERVICE_HOSTS }}
+            key: ${{ secrets.SERVICE_PRIVATE_KEY }}
+            script: |
               echo "测试是否连通"
               # /root/update_docker.sh ${{env.DOCKER_REGISTRY_URL}} ${{secrets.DOCKER_USERNAME}} ${{secrets.DOCKER_PASSWORD}} ${{env.IMAGE_TAG}} ${{env.CONTAINER_NAME}} ${{env.DOCKER_RUN_PARAMS}}
