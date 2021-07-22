@@ -42,8 +42,8 @@ jobs:
       
       - name: 构建并推送
         run: |
-          docker version
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REGISTRY_URL
+          echo "${{secrets.DOCKER_PASSWORD}}"
+          docker login $DOCKER_REGISTRY_URL --username ${{secrets.DOCKER_USERNAME}} --password-stdin
       #     # 使用 buildx 可以同时构建 X86 和 ARM 架构的镜像
       #     docker buildx build \
       #       --platform=linux/amd64,linux/arm/v7,linux/arm64 \
