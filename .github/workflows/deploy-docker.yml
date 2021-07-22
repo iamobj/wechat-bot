@@ -29,12 +29,13 @@ jobs:
           # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
           DOCKER_RUN_PARAMS: -p 4300:4300
 
-        # 设置IMAGE_TAG变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
         # 设置环境变量命令语法 https://docs.github.com/cn/actions/reference/workflow-commands-for-github-actions#setting-an-environment-variable
         run: |
           fullCommit="${{ github.event.commits[0].id }}"
+          # 定义变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
           IMAGE_TAG="${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${fullCommit:0:7}"
           echo $IMAGE_TAG
+          # 设置IMAGE_TAG环境变量
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
       
       - name: 构建并推送
@@ -42,17 +43,17 @@ jobs:
         run: |
           docker version
           docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }} $DOCKER_REGISTRY_URL
-          docker buildx build \
-            --platform=linux/amd64,linux/arm/v7,linux/arm64 \
-            --file ./Dockerfile . \
-            --tag $IMAGE_TAG
-          docker push $IMAGE_TAG
+      #     docker buildx build \
+      #       --platform=linux/amd64,linux/arm/v7,linux/arm64 \
+      #       --file ./Dockerfile . \
+      #       --tag $IMAGE_TAG
+      #     docker push $IMAGE_TAG
         
-      - name: 通知服务器更新部署
-        uses: JimCronqvist/action-ssh@master
-        with:
-            hosts: ${{ secrets.SERVICE_HOSTS }}
-            privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
-            debug: false
-            command: |
-              /root/update_docker.sh $DOCKER_REGISTRY_URL ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
+      # - name: 通知服务器更新部署
+      #   uses: JimCronqvist/action-ssh@master
+      #   with:
+      #       hosts: ${{ secrets.SERVICE_HOSTS }}
+      #       privateKey: ${{ secrets.SERVICE_PRIVATE_KEY }}
+      #       debug: false
+      #       command: |
+      #         /root/update_docker.sh $DOCKER_REGISTRY_URL ${{ secrets.DOCKER_USERNAME }} ${{ secrets.DOCKER_PASSWORD }} $IMAGE_TAG $CONTAINER_NAME $DOCKER_RUN_PARAMS
