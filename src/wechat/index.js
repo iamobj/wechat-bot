@@ -152,45 +152,56 @@ const createWeChatInstance = (wechatBotItem) => {
 
     wechatBotItem.ws.on('open', () => {
       console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 微信机器人【${wechatBotItem.name}】webSocket已连接`)
+
       wechatBotItem.wechatBot = new WechatBot(wechatBotItem.ws)
-      resolve(wechatBotItem.wechatBot)
+      resolve()
+      // 实例完成 当前这个机器人有初始化函数就执行
+      wechatBotItem.init && wechatBotItem.init()
     })
 
-    wechatBotItem.ws.on('error', e => {
+    wechatBotItem.ws.on('error', async e => {
       console.error(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 微信机器人【${wechatBotItem.name}】webSocket出错`, e)
+
       wechatBotItem.wechatBot = null
-      webSocketReconnect(wechatBotItem)
+
+      // 重新创建机器人实例
+      await webSocketReconnect(wechatBotItem)
+      resolve()
     })
 
-    wechatBotItem.ws.on('close', () => {
+    wechatBotItem.ws.on('close', async() => {
       console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 微信机器人【${wechatBotItem.name}】webSocket断开`)
+
       wechatBotItem.wechatBot = null
-      webSocketReconnect(wechatBotItem)
+
+      // 重新创建机器人实例
+      await webSocketReconnect(wechatBotItem)
+      resolve()
     })
   })
 }
 
 /**
  * 重新初始化微信机器人
+ * @param {object} wechatBotItem 微信机器人配置item
  */
-const webSocketReconnect = (() => {
-  let reconnectTimer
-  const clearTimer = () => {
-    if (reconnectTimer) {
-      clearTimeout(reconnectTimer)
-      reconnectTimer = null
+const webSocketReconnect = (wechatBotItem) => {
+  return new Promise((resolve, reject) => {
+    if (wechatBotItem._reconnectTimer) {
+      clearTimeout(wechatBotItem._reconnectTimer)
+      wechatBotItem._reconnectTimer = null
     }
-  }
-  return (args) => {
-    clearTimer()
-    // 每隔四秒就尝试重新连接，连接成功后就清除定时器
-    reconnectTimer = setInterval(async() => {
-      console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 正在尝试重连微信机器人【${args.name}】webSocket...`)
-      await createWeChatInstance(args)
-      clearTimer()
+    // 使用定时器控制请求频率，避免请求过多 失败会再次调用重新初始化方法，直到连接成功
+    wechatBotItem._reconnectTimer = setTimeout(async() => {
+      console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 正在尝试重连微信机器人【${wechatBotItem.name}】webSocket...`)
+
+      // 创建成功就把定时器变量置空释放内存
+      await createWeChatInstance(wechatBotItem)
+      wechatBotItem._reconnectTimer = null
+      resolve()
     }, 4000)
-  }
-})()
+  })
+}
 
 /**
  * proxy 劫持 wechatBots，方便 wechatBots.熊小二.send() 直接访问机器人实例方法，而不是 wechatBots.熊小二.wechatBot.send()
@@ -205,6 +216,9 @@ const proxyWechatBots = (wechatBots) => {
         }
 
         const wechatBot = Reflect.get(target, 'wechatBot')
+        if (!wechatBot) {
+          throw new Error(`【${target.name}】机器人下线或没有实例化，请联系管理员检查该机器人`)
+        }
         if (Reflect.has(wechatBot, property)) {
           return Reflect.get(wechatBot, property)
         }
@@ -252,7 +266,6 @@ const wechatBots = {
 const wechatBotInit = async() => {
   await Promise.all(Object.keys(wechatBots).map(async key => {
     await createWeChatInstance(wechatBots[key])
-    wechatBots[key].init()
   }))
 
   proxyWechatBots(wechatBots)
