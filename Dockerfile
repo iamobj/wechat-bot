@@ -1,26 +1,39 @@
-# 安装依赖阶段
-FROM mhart/alpine-node:14.17.3 AS install
+# 构建基础镜像
+    FROM alpine:latest AS base
 
-# 设置时区
-RUN apk --update --no-cache add tzdata \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && echo "Asia/Shanghai" > /etc/timezone \
-    && apk del tzdata
+    # 设置时区
+    RUN apk --update --no-cache add tzdata \
+        && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+        && echo "Asia/Shanghai" > /etc/timezone \
+        && apk del tzdata
 
-# 设置环境变量
-ENV NODE_ENV='production' \
-    APP_PATH=/node/app
+    # 设置环境变量
+    ENV NODE_ENV=production \
+        APP_PATH=/node/app
+    
+    # 设置工作目录
+    WORKDIR $APP_PATH
 
-# 设置工作目录
-WORKDIR $APP_PATH
+    # 安装 nodejs 和 yarn
+    RUN apk add --no-cache --update nodejs=14.17.1-r0 yarn=1.22.10-r0
 
-# 暴露端口
-EXPOSE 4300
+# 使用基础镜像 装依赖阶段
+    FROM base AS install
 
-COPY package.json $APP_PATH/package.json
-RUN yarn
+    # 拷贝 package.json 到工作跟目录下
+    COPY package.json ./
 
-# 把当前目录下的所有文件拷贝到镜像的工作目录下 .dockerignore 指定的文件不会拷贝
-COPY . $APP_PATH
+    # 安装依赖
+    RUN yarn
 
-CMD yarn start
+# 最终阶段，也就是输出的镜像是这个阶段构建的，前面的阶段都是为这个阶段做铺垫
+    FROM base
+
+    # 拷贝 装依赖阶段 生成的 node_modules 文件夹到工作目录下
+    COPY --from=install $APP_PATH/node_modules ./node_modules
+
+    # 将当前目录下的所有文件（除了.dockerignore排除的路径），都拷贝进入镜像的工作目录下
+    COPY . .
+
+    # 启动
+    CMD yarn start
