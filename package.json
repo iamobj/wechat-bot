@@ -4,6 +4,9 @@
   "description": "微信机器人",
   "main": "./src/app.js",
   "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
   "scripts": {
     "prepare": "husky install",
     "start": "fastify start -p 4300 -l info ./src/app.js",
