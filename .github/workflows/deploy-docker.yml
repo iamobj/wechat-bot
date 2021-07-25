@@ -79,4 +79,4 @@ jobs:
             script: |
               wget -N --no-check-certificate "http://assets.e8q.cn/sh/update-docker-deploy.sh" 
               chmod +x update-docker-deploy.sh 
-              ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N ${{env.CONTAINER_NAME}} -A "${{env.DOCKER_RUN_PARAMS}}" -S 0
+              ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N ${{env.CONTAINER_NAME}} -A "${{env.DOCKER_RUN_PARAMS}}"
