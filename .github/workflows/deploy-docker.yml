@@ -77,4 +77,6 @@ jobs:
             username: ${{secrets.SERVICE_USERNAME}}
             key: ${{secrets.SERVICE_PRIVATE_KEY}}
             script: |
-              wget -N --no-check-certificate "https://raw.githubusercontent.com/iamobj/sh/main/update-docker-deploy.sh" && chmod +x update-docker-deploy.sh && ./update-docker-deploy.sh ${{env.DOCKER_REGISTRY_URL}} ${{secrets.DOCKER_USERNAME}} ${{secrets.DOCKER_PASSWORD}} ${{env.IMAGE_TAG}} ${{env.CONTAINER_NAME}} "${{env.DOCKER_RUN_PARAMS}}"
+              wget -N --no-check-certificate "http://assets.e8q.cn/sh/update-docker-deploy.sh" 
+              chmod +x update-docker-deploy.sh 
+              ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N ${{env.CONTAINER_NAME}} -A "${{env.DOCKER_RUN_PARAMS}}" -S 0
