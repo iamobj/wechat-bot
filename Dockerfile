@@ -1,5 +1,5 @@
 # 构建基础镜像
-    FROM alpine:3.13 AS base
+    FROM alpine:3.14 AS base
 
     # 设置时区
     RUN apk --update --no-cache add tzdata \
