@@ -204,7 +204,7 @@ const webSocketReconnect = (wechatBotItem) => {
 }
 
 /**
- * proxy 劫持 wechatBots，方便 wechatBots.熊小二.send() 直接访问机器人实例方法，而不是 wechatBots.熊小二.wechatBot.send()
+ * proxy 劫持 wechatBots，方便 wechatBots.熊小三.send() 直接访问机器人实例方法，而不是 wechatBots.熊小三.wechatBot.send()
  * @param {object} wechatBots 微信机器人配置对象
  */
 const proxyWechatBots = (wechatBots) => {
@@ -232,8 +232,8 @@ const proxyWechatBots = (wechatBots) => {
  * 微信机器人配置
  */
 const wechatBots = {
-  熊小二: {
-    name: '熊小二',
+  熊小三: {
+    name: '熊小三',
     wsUrl: 'ws://192.168.50.16:5555',
     ws: null, // 微信机器人webSocket实例
     wechatBot: null, // 微信机器人实例
