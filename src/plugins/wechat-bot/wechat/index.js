@@ -269,6 +269,8 @@ const wechatBotInit = async() => {
   }))
 
   proxyWechatBots(wechatBots)
+
+  return wechatBots
 }
 
 export {
