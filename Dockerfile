@@ -15,7 +15,7 @@
     WORKDIR $APP_PATH
 
     # 安装 nodejs 和 yarn
-    RUN apk add --no-cache --update nodejs=14.17.6-r0 yarn=1.22.10-r0
+    RUN apk add --no-cache --update nodejs=14.18.1-r0 yarn=1.22.10-r0
 
 # 使用基础镜像 装依赖阶段
     FROM base AS install
