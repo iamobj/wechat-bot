@@ -57,4 +57,4 @@ profile*
 *clinic*
 *flamegraph*
 
-yarn.lock
+src/plugins/config/configs/development.js

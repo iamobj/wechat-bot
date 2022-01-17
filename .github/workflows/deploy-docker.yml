@@ -18,7 +18,7 @@ jobs:
       # 容器名称
       CONTAINER_NAME: wechat-bot
       # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
-      DOCKER_RUN_PARAMS: -p 4300:4300 --restart=always
+      DOCKER_RUN_PARAMS: -p 4300:4300 --restart=always -e DATABASE_NAME=${{secrets.DATABASE_NAME}} -e DATABASE_USER_NAME=${secrets.DATABASE_USER_NAME} -e DATABASE_USER_PASSWORD=${secrets.DATABASE_USER_PASSWORD} -e DATABASE_HOST=${secrets.DATABASE_HOST} -e DATABASE_PORT=${secrets.DATABASE_PORT}
 
     steps:
       - name: 检出代码到本地

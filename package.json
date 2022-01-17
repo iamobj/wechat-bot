@@ -28,6 +28,9 @@
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.0",
     "node-schedule": "^2.0.0",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.13.0",
     "ws": "^7.5.3"
   },
   "devDependencies": {
