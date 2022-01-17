@@ -17,6 +17,8 @@ jobs:
       DOCKER_REGISTRY_URL: registry.cn-shenzhen.aliyuncs.com
       # 容器名称
       CONTAINER_NAME: wechat-bot
+      # docker run 命令的部分参数 远程服务器run已经写了 name 参数和镜像
+      DOCKER_RUN_PARAMS: -p 4300:4300 --restart=always -e DATABASE_NAME=${{secrets.DATABASE_NAME}} -e DATABASE_USER_NAME=${{secrets.DATABASE_USER_NAME}} -e DATABASE_USER_PASSWORD=${{secrets.DATABASE_USER_PASSWORD}} -e DATABASE_HOST=${{secrets.DATABASE_HOST}} -e DATABASE_PORT=${{secrets.DATABASE_PORT}}
 
     steps:
       - name: 检出代码到本地
@@ -77,4 +79,4 @@ jobs:
             script: |
               wget -N --no-check-certificate "http://assets.e8q.cn/sh/update-docker-deploy.sh" 
               chmod +x update-docker-deploy.sh 
-              ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N "${{env.CONTAINER_NAME}}" -A "-p 4300:4300 --restart=always -e DATABASE_NAME=${{secrets.DATABASE_NAME}} -e DATABASE_USER_NAME=${secrets.DATABASE_USER_NAME} -e DATABASE_USER_PASSWORD=${secrets.DATABASE_USER_PASSWORD} -e DATABASE_HOST=${secrets.DATABASE_HOST} -e DATABASE_PORT=${secrets.DATABASE_PORT}"
+              ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N "${{env.CONTAINER_NAME}}" -A "${{env.DOCKER_RUN_PARAMS}}"
