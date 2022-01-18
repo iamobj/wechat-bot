@@ -10,7 +10,7 @@
   "scripts": {
     "prepare": "husky install",
     "start": "fastify start -p 4300 -l info ./src/app.js",
-    "dev": "fastify start -p 4300 -w -l info -P ./src/app.js",
+    "dev": "fastify start -p 4301 -w -l info -P ./src/app.js",
     "lint": "eslint \"src/**/*.js\" --fix",
     "commit": "./node_modules/cz-customizable/standalone.js"
   },

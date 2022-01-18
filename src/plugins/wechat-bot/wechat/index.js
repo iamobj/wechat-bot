@@ -99,39 +99,30 @@ class WechatBot extends Task {
   }
 
   /**
-   * 通过联系人/群名称发送
-   * 注意：名称重复的只会取第一个，微信名称/备注名称只要传其中一个，两个字段都传，备注名称优先级高，不做一个字段是避免联系人的微信名和一些备注名称重复导致发送给错误的人，建议通过备注名来做发送，维护备注名要唯一
-   * @param {string} name 微信名称
-   * @param {string} remarkName 微信备注名称
+   * 通过匹配目标字段发送消息（最好是通过微信号发送，因为微信号是唯一的）
+   * @param {string} targetKey 目标key（可以是personList属性中任一） eg:name-微信名称 remarks-备注名称 wxcode-微信号
+   * @param {string} targetValue 对应目标key的值
    */
-  async sendByName({ name, remarkName, ...options }) {
-    let nameValue = name
-    let nameKey = 'name' // 联系人列表对比字段名，备注名就对比
-    if (remarkName !== undefined) {
-      nameValue = remarkName
-      nameKey = 'remarks'
-    }
-
-    let targetWxid
+  async sendByTarget({ targetKey, targetValue, ...options }) {
     // 先从缓存里找
-    for (const key in this._personCache) {
-      if (Object.hasOwnProperty.call(this._personCache, key)) {
-        if (this._personCache[key] === nameValue) {
-          targetWxid = key
-          break
-        }
-      }
-    }
+    let targetWxid = this._personCache?.[targetKey]?.[targetValue]
 
     // 缓存里没有找到就实时请求寻找，找到了缓存起来方便下次查找
     if (!targetWxid) {
       const { content: list } = await this.getPersonList()
-      const target = list.find(item => item[nameKey] === nameValue)
+      const target = list.find(item => item[targetKey] === targetValue)
       if (target) {
         targetWxid = target.wxid
-        this._personCache[target.wxid] = target[nameKey]
+
+        if (Object.prototype.toString.call(this._personCache[targetKey]) === '[object Object]') {
+          this._personCache[targetKey][targetValue] = targetWxid
+        } else {
+          this._personCache[targetKey] = {
+            [targetValue]: targetWxid
+          }
+        }
       } else {
-        return Promise.reject(new Error('没有找到对应名称的联系人或群'))
+        return Promise.reject(new Error('没有找到对应人或群'))
       }
     }
 
@@ -250,7 +241,8 @@ const wechatBots = {
               hour: 14,
               minute: 40
             },
-            wechatRemarkName: '熊猫阁基友群',
+            targetKey: 'remarks',
+            targetValue: '熊猫阁基友群',
             content: '基友们，2点40啦，该抛就抛，该抄就抄'
           })
         })
