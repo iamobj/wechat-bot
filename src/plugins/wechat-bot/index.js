@@ -1,5 +1,6 @@
 import fp from 'fastify-plugin'
 import { wechatBotInit, wechatBots } from './wechat/index.js'
+import { sequelizeDefaults } from '../sequelize.js'
 
 const defaults = {
   pluginName: 'wechatBot',
@@ -24,5 +25,6 @@ function wechatBotPlugin(fastify, opts, done) {
 }
 
 export default fp(wechatBotPlugin, {
-  name: defaults.pluginName
+  name: defaults.pluginName,
+  dependencies: [sequelizeDefaults.pluginName]
 })

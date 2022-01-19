@@ -6,8 +6,9 @@ const __dirname = dirname(__filename)
 const _basename = basename(__filename)
 const excludeFiles = [_basename]
 
+const db = {}
+
 export default async function(sequelize) {
-  const db = {}
   const files = readdirSync(__dirname)
     .filter(file => {
       return ((!excludeFiles.includes(file)) && (file.endsWith('.js')))
@@ -21,3 +22,5 @@ export default async function(sequelize) {
 
   return db
 }
+
+export { db }

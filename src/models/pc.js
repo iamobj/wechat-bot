@@ -15,6 +15,20 @@ export default function(sequelize) {
       allowNull: false,
       comment: '名称'
     },
+    host: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      comment: '主机地址'
+    },
+    port: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      comment: '端口'
+    },
+    authWxids: {
+      type: Sequelize.ARRAY(Sequelize.STRING),
+      comment: '授权可以操作的微信id组合'
+    },
     account: {
       type: Sequelize.STRING,
       comment: '账号'

@@ -40,3 +40,5 @@ export default fp(sequelizePlugin, {
   name: defaults.pluginName,
   dependencies: [configDefaults.pluginName]
 })
+
+export const sequelizeDefaults = defaults

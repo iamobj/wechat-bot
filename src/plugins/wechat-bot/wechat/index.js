@@ -3,7 +3,7 @@ import WebSocket from 'ws'
 import schedule from 'node-schedule'
 import dayjs from 'dayjs'
 import { Task } from '#src/library/baseClass/index.js'
-import { timerSend } from './task/index.js'
+import { timerSend, openwrt } from './task/index.js'
 
 const CODES = {
   HEART_BEAT: 5005,
@@ -31,12 +31,53 @@ class WechatBot extends Task {
     super()
     this.wechatWebSocket = wechatWebSocket
 
-    this._personCache = {} // 微信联系人缓存 key是wxid value是微信名或者备注名称
+    this._personCache = {} // 微信联系人缓存
+
+    this.recvMsgEvents = {} // 接收消息事件
     return this
   }
 
   _createId() {
     return Date.now().toString()
+  }
+
+  /**
+   * 注册接收消息事件
+   * @param {string} eventName 事件名称
+   * @param {string} type 消息类型 text-文本消息 pic-图片消息
+   * @param {function} fn 回调函数
+   */
+  registerRecvMsgEvent({ eventName, type, fn }) {
+    const obj = this.recvMsgEvents?.[type] || (this.recvMsgEvents[type] = {})
+
+    if (eventName in obj) {
+      throw new Error(`注册接收${type}消息事件: ${eventName} 已经被注册`)
+    } else {
+      obj[eventName] = fn
+    }
+  }
+
+  /**
+   * 处理接收到的消息
+   */
+  handleRecvMsg() {
+    const that = this
+    this.wechatWebSocket.addEventListener('message', async function handleRecvMsg(d) {
+      const data = JSON.parse(d.data)
+      let eventName
+
+      switch (data.type) {
+        case CODES.RECV_TXT_MSG:
+          eventName = data.content.split(' ')[0]
+          that.recvMsgEvents?.text?.[eventName]?.(data)
+          break
+        case CODES.RECV_PIC_MSG:
+          console.log(data)
+          break
+        default:
+          break
+      }
+    })
   }
 
   /**
@@ -231,6 +272,8 @@ const wechatBots = {
     // 微信机器人实例创建完成后需要执行多个任务
     init() {
       const { wechatBot } = this
+      wechatBot.handleRecvMsg()
+
       wechatBot
         .task({
           name: '熊猫阁基友群定时推送',
@@ -245,6 +288,10 @@ const wechatBots = {
             targetValue: '熊猫阁基友群',
             content: '基友们，2点40啦，该抛就抛，该抄就抄'
           })
+        })
+        .task({
+          name: '指令控制软路由',
+          handle: wechatBot => openwrt({ wechatBot })
         })
         .use(wechatBot.getAllTask()) // 注入定义的所有任务
         .run()
