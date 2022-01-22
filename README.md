@@ -20,3 +20,11 @@
 
 [点我查看项目看板](https://github.com/iamobj/wechat-bot/projects/1)
 
+## 功能清单
+
+<details>
+  <summary>指令控制路由器</summary>
+  查看端口转发规则列表：<code>op dkzfls</code>
+  <br>
+  开关端口转发：<code>op dkzf {on/off} {端口号}</code>
+</details>

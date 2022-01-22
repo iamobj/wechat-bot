@@ -64,6 +64,12 @@ class WechatBot extends Task {
     const that = this
     this.wechatWebSocket.addEventListener('message', async function handleRecvMsg(d) {
       const data = JSON.parse(d.data)
+
+      if (typeof data.content === 'string' && process.env.NODE_ENV === 'development') {
+        // 开发环境测试指令消息前面增加 'd ' 避免触发生产环境指令
+        data.content = data.content.replace('d ', '')
+      }
+
       let eventName
 
       switch (data.type) {
