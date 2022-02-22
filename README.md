@@ -28,5 +28,5 @@
   <br>
   开关端口转发：<code>op dkzf {on/off} {端口号}</code>
   <br>
-  重启：<code>reboot</code>
+  重启：<code>op reboot</code>
 </details>
