@@ -1,5 +1,5 @@
 # 构建基础镜像
-    FROM alpine:3.14 AS base
+    FROM mhart/alpine-node:14.17.3 AS base
 
     # 设置时区
     RUN apk --update --no-cache add tzdata \
@@ -13,9 +13,6 @@
     
     # 设置工作目录
     WORKDIR $APP_PATH
-
-    # 安装 nodejs 和 yarn
-    RUN apk add --no-cache --update nodejs=14.18.1-r0 yarn=1.22.10-r0
 
 # 使用基础镜像 装依赖阶段
     FROM base AS install
