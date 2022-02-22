@@ -27,4 +27,6 @@
   查看端口转发规则列表：<code>op dkzfls</code>
   <br>
   开关端口转发：<code>op dkzf {on/off} {端口号}</code>
+  <br>
+  重启：<code>reboot</code>
 </details>

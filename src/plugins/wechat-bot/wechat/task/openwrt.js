@@ -115,10 +115,30 @@ async function portForwardList() {
   }
 }
 
+// 重启路由
+async function restartRouter() {
+  try {
+    await sshIns.execCommand('reboot')
+    wechatBotIns.sendByTarget({
+      targetKey: 'wxid',
+      targetValue: wxData.wxid,
+      content: 'reboot success'
+    })
+  } catch (e) {
+    wechatBotIns.sendByTarget({
+      targetKey: 'wxid',
+      targetValue: wxData.wxid,
+      content: 'reboot fail'
+    })
+    return Promise.reject(e)
+  }
+}
+
 // 指令映射方法
 const fnMap = {
   dkzf: portForwardSwitch,
-  dkzfls: portForwardList
+  dkzfls: portForwardList,
+  reboot: restartRouter
 }
 
 async function handleOpenwrt(data) {
@@ -140,7 +160,10 @@ async function handleOpenwrt(data) {
   const [eventName, fnName, ...params] = data.content.split(' ')
   await fnMap[fnName]?.(...params)
 
-  sshIns.execCommand('exit')
+  const noExitInstructions = ['reboot'] // 不需要退出的指令
+  if (!noExitInstructions.includes(fnName)) {
+    sshIns.execCommand('exit')
+  }
 }
 
 export default ({ wechatBot }) => {
