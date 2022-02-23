@@ -1,5 +1,5 @@
 # 构建基础镜像
-    FROM iamccc/alpine-node:0.1.0 AS base
+    FROM iamccc/alpine-node:14.19.0 AS base
 
     # 设置时区
     RUN apk --update --no-cache add tzdata \
