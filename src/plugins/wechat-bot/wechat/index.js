@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 import WebSocket from 'ws'
-import schedule from 'node-schedule'
 import dayjs from 'dayjs'
 import { Task } from '#src/library/baseClass/index.js'
-import { timerSend, openwrt } from './task/index.js'
+import { openwrt } from './task/index.js'
+import { JiYouGroupPush } from './task/timerSend.js'
 
 const CODES = {
   HEART_BEAT: 5005,
@@ -149,6 +149,7 @@ class WechatBot extends Task {
    * 通过匹配目标字段发送消息（最好是通过微信号发送，因为微信号是唯一的）
    * @param {string} targetKey 目标key（可以是personList属性中任一） eg:name-微信名称 remarks-备注名称 wxcode-微信号
    * @param {string} targetValue 对应目标key的值
+   * @param {string} content 发送的内容  '[imgMsg]'开头的内容为发送图片消息，不支持gif
    */
   async sendByTarget({ targetKey, targetValue, ...options }) {
     // 先从缓存里找
@@ -171,6 +172,12 @@ class WechatBot extends Task {
       } else {
         return Promise.reject(new Error('没有找到对应人或群'))
       }
+    }
+
+    if (options.content.startsWith('[imgMsg]')) {
+      // 如果是发送图片需要额外处理
+      options.type = CODES.PIC_MSG
+      options.content = options.content.replace('[imgMsg]', '')
     }
 
     await this.send({
@@ -283,17 +290,7 @@ const wechatBots = {
       wechatBot
         .task({
           name: '熊猫阁基友群定时推送',
-          handle: wechatBot => timerSend({
-            wechatBot,
-            timeRule: {
-              dayOfWeek: [new schedule.Range(1, 5)],
-              hour: 14,
-              minute: 40
-            },
-            targetKey: 'remarks',
-            targetValue: '熊猫阁基友群',
-            content: '基友们，2点40啦，该抛就抛，该抄就抄'
-          })
+          handle: wechatBot => JiYouGroupPush(wechatBot)
         })
         .task({
           name: '指令控制软路由',
