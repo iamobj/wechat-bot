@@ -11,15 +11,27 @@ const defaults = {
 
 /**
  * 获取端口转发所有规则
+ * @param {Boolean} isSort 是否开启排序 端口状态为on的排前面
  * @returns 返回规则列表
  */
-async function getPortForwardList() {
+async function getPortForwardList(isSort = true) {
   const { stdout, stderr } = await sshIns.execCommand('ubus call uci get \'{"config": "firewall", "type": "redirect"}\'')
   if (stderr) {
     return Promise.reject(stderr)
   }
 
   const { values: obj } = JSON.parse(stdout)
+  if (isSort) {
+    return Object.values(obj).sort((v1, v2) => {
+      if (v1.enabled === '0') {
+        return 1
+      }
+      if (v2.enabled === '0') {
+        return -1
+      }
+      return 0
+    })
+  }
   return Object.values(obj)
 }
 
