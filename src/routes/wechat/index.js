@@ -19,7 +19,23 @@ export default async(fastify, opts) => {
     if (!user) {
       reply.send({
         statusCode: 1,
-        message: '用户不存在'
+        message: '无效的authCode'
+      })
+      return
+    }
+
+    if (user.isDisable) {
+      reply.send({
+        statusCode: 1,
+        message: 'authCode已被禁用'
+      })
+      return
+    }
+
+    if (user.expirationDate && new Date() > user.expirationDate) {
+      reply.send({
+        statusCode: 1,
+        message: 'authCode已过期'
       })
       return
     }
