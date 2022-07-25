@@ -39,7 +39,11 @@ export const JiYouGroupPush = wechatBot => {
     wechatBot,
     onBeforeSend: async() => {
       // 判断是否是工作日，避免节假日推送
-      const { data } = await axios.get('https://timor.tech/api/holiday/info')
+      const { data } = await axios.get('https://timor.tech/api/holiday/info', {
+        params: {
+          t: new Date(new Date().toLocaleDateString()).getTime()
+        }
+      })
       if (data?.type?.type === 0) {
         return true
       }
