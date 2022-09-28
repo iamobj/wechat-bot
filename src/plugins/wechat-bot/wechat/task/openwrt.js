@@ -44,7 +44,7 @@ async function portForwardSwitch(type, port) {
 
   try {
     await forwardTypeMap?.[type]?.(port)
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
       content: `${type} ${port} success`
@@ -52,7 +52,7 @@ async function portForwardSwitch(type, port) {
 
     portForwardList()
   } catch (e) {
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
       content: `${type} ${port} fail`
@@ -112,13 +112,13 @@ async function portForwardList() {
       return acc
     }, '')
 
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
       content
     })
   } catch (e) {
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
       content: 'get port forward list fail'
@@ -131,13 +131,13 @@ async function portForwardList() {
 async function restartRouter() {
   try {
     await sshIns.execCommand('reboot')
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
       content: 'reboot success'
     })
   } catch (e) {
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
       content: 'reboot fail'
@@ -159,7 +159,7 @@ async function handleOpenwrt(data) {
   const pcData = await pc.findByPk(1)
 
   if (!pcData.authWxids.includes(data.wxid)) {
-    wechatBotIns.sendByTarget({
+    await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: data.wxid,
       content: '你没有权限使用该功能'
