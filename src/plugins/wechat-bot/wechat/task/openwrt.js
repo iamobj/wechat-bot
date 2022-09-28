@@ -146,11 +146,34 @@ async function restartRouter() {
   }
 }
 
+// 获取公网ip
+async function getPublicIp() {
+  try {
+    const { stdout, stderr } = await sshIns.execCommand('curl -s https://ip.3322.net/')
+    if (stderr) {
+      return Promise.reject(stderr)
+    }
+    await wechatBotIns.sendByTarget({
+      targetKey: 'wxid',
+      targetValue: wxData.wxid,
+      content: stdout
+    })
+  } catch (e) {
+    await wechatBotIns.sendByTarget({
+      targetKey: 'wxid',
+      targetValue: wxData.wxid,
+      content: 'get public ip fail'
+    })
+    return Promise.reject(e)
+  }
+}
+
 // 指令映射方法
 const fnMap = {
   dkzf: portForwardSwitch,
   dkzfls: portForwardList,
-  reboot: restartRouter
+  reboot: restartRouter,
+  ip: getPublicIp
 }
 
 async function handleOpenwrt(data) {

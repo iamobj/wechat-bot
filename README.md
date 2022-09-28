@@ -29,4 +29,6 @@
   开关端口转发：<code>op dkzf {on/off} {端口号}</code>
   <br>
   重启：<code>op reboot</code>
+  <br>
+  获取公网ip：<code>op ip</code>
 </details>
