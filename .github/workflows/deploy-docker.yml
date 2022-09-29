@@ -53,6 +53,9 @@ jobs:
           context: .
           file: ./base.Dockerfile
           push: true
+      
+      - name: 拉取基础镜像到本地
+        run: docker pull ${{env.DOCKER_REGISTRY_URL}}/iamc/${{env.CONTAINER_NAME}}:base
 
       - name: 动态设置环境变量
         run: |
