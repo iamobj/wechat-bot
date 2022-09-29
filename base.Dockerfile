@@ -13,7 +13,7 @@ ENV NODE_ENV=production \
 # 设置工作目录
 WORKDIR $APP_PATH
 
-# 拷贝 package.json 到工作跟目录下
+# 拷贝 package.json 到工作跟目录下 
 COPY package.json .
 
 # 安装依赖
