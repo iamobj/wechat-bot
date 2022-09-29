@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/**'
       - 'src/**'
+      - 'base.Dockerfile'
       - 'Dockerfile'
       - '.dockerignore'
 
@@ -23,6 +24,7 @@ jobs:
     steps:
       - name: 检出代码到本地
         uses: actions/checkout@v2
+
       # 使用 QEMU 模拟器 Buildx 构建跨平台的镜像
       - name: 安装 QEMU
         uses: docker/setup-qemu-action@v1
@@ -30,30 +32,36 @@ jobs:
       - name: 安装 Docker Buildx
         uses: docker/setup-buildx-action@v1
       
-      # 使用缓存加快构建
-      - name: 缓存 Docker 所有层
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: 动态设置环境变量
-        run: |
-          fullCommit="${{github.sha}}"
-          # 定义变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
-          IMAGE_TAG="${DOCKER_REGISTRY_URL}/iamc/wechat-bot:${fullCommit:0:7}"
-          echo $IMAGE_TAG
-          # 写入 IMAGE_TAG 到 GITHUB_ENV 环境文件，变成环境变量，后面的流程可以使用 命令语法 https://docs.github.com/cn/actions/reference/workflow-commands-for-github-actions#setting-an-environment-variable
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-      - name: 登录docker镜像私库
+      - name: 登录 docker 镜像私库
         uses: docker/login-action@v1
         with:
           registry: ${{env.DOCKER_REGISTRY_URL}}
           username: ${{secrets.DOCKER_USERNAME}}
           password: ${{secrets.DOCKER_PASSWORD}}
+      
+      - name: 获取改变文件
+        id: changedFiles
+        uses: jitterbit/get-changed-files@v1
+      
+      - name: 构建基础镜像并推送
+        # base.Dockerfile、package.json 有变化时才构建
+        if: contains(steps.changedFiles.outputs.all, 'base.Dockerfile') || contains(steps.changedFiles.outputs.all, 'package.json')
+        uses: docker/build-push-action@v2
+        with:
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          tags: ${{env.DOCKER_REGISTRY_URL}}/iamc/${{env.CONTAINER_NAME}}:base
+          context: .
+          file: ./base.Dockerfile
+          push: true
+
+      - name: 动态设置环境变量
+        run: |
+          fullCommit="${{github.sha}}"
+          # 定义变量 以 commit id前7位做版本标识（因为github commit 页面只展示前7位，这里一样方便搜索）
+          IMAGE_TAG="${DOCKER_REGISTRY_URL}/iamc/${CONTAINER_NAME}:${fullCommit:0:7}"
+          echo $IMAGE_TAG
+          # 写入 IMAGE_TAG 到 GITHUB_ENV 环境文件，变成环境变量，后面的流程可以使用 命令语法 https://docs.github.com/cn/actions/reference/workflow-commands-for-github-actions#setting-an-environment-variable
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: 构建并推送
         uses: docker/build-push-action@v2
@@ -61,22 +69,14 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: ${{env.IMAGE_TAG}}
           push: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
-      
-      # 把旧缓存清除掉，把新缓存文件移动到旧缓存文件夹下，这样避免缓存累计数量大
-      - name: 清除旧缓存
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
         
       - name: 通知服务器更新部署
         uses: appleboy/ssh-action@master
         with:
-            host: ${{secrets.SERVICE_HOSTS}}
-            username: ${{secrets.SERVICE_USERNAME}}
-            key: ${{secrets.SERVICE_PRIVATE_KEY}}
-            script: |
-              wget -N --no-check-certificate "http://assets.e8q.cn/sh/update-docker-deploy.sh" 
-              chmod +x update-docker-deploy.sh 
-              ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N "${{env.CONTAINER_NAME}}" -A "${{env.DOCKER_RUN_PARAMS}}"
+          host: ${{secrets.SERVICE_HOSTS}}
+          username: ${{secrets.SERVICE_USERNAME}}
+          key: ${{secrets.SERVICE_PRIVATE_KEY}}
+          script: |
+            wget -N --no-check-certificate "http://assets.e8q.cn/sh/update-docker-deploy.sh" 
+            chmod +x update-docker-deploy.sh 
+            ./update-docker-deploy.sh -R ${{env.DOCKER_REGISTRY_URL}} -U ${{secrets.DOCKER_USERNAME}} -P ${{secrets.DOCKER_PASSWORD}} -T ${{env.IMAGE_TAG}} -N "${{env.CONTAINER_NAME}}" -A "${{env.DOCKER_RUN_PARAMS}}"
