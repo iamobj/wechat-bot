@@ -1,9 +1,8 @@
-/* eslint-disable no-unused-vars */
 import WebSocket from 'ws'
 import dayjs from 'dayjs'
-import { Task } from '#src/library/baseClass/index.js'
 import { openwrt } from './task/index.js'
 import { JiYouGroupPush } from './task/timerSend.js'
+import { Task } from '#src/library/baseClass/index.js'
 
 const CODES = {
   HEART_BEAT: 5005,
@@ -23,7 +22,7 @@ const CODES = {
   DESTROY_ALL: 9999,
   NEW_FRIEND_REQUEST: 37, // 微信好友请求消息
   AGREE_TO_FRIEND_REQUEST: 10000, // 同意微信好友请求消息
-  ATTATCH_FILE: 5003
+  ATTATCH_FILE: 5003,
 }
 
 class WechatBot extends Task {
@@ -45,14 +44,15 @@ class WechatBot extends Task {
    * 注册接收消息事件
    * @param {string} eventName 事件名称
    * @param {string} type 消息类型 text-文本消息 pic-图片消息
-   * @param {function} fn 回调函数
+   * @param {Function} fn 回调函数
    */
   registerRecvMsgEvent({ eventName, type, fn }) {
     const obj = this.recvMsgEvents?.[type] || (this.recvMsgEvents[type] = {})
 
     if (eventName in obj) {
       throw new Error(`注册接收${type}消息事件: ${eventName} 已经被注册`)
-    } else {
+    }
+    else {
       obj[eventName] = fn
     }
   }
@@ -62,7 +62,7 @@ class WechatBot extends Task {
    */
   handleRecvMsg() {
     const that = this
-    this.wechatWebSocket.addEventListener('message', async function handleRecvMsg(d) {
+    this.wechatWebSocket.addEventListener('message', async (d) => {
       const data = JSON.parse(d.data)
 
       if (typeof data.content === 'string' && process.env.NODE_ENV === 'development') {
@@ -90,14 +90,15 @@ class WechatBot extends Task {
    * 获取微信联系人列表
    */
   getPersonList() {
-    return new Promise(async(resolve, reject) => {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
       const params = {
         type: CODES.USER_LIST,
         roomid: 'null', // null
         wxid: 'null', // not null
         content: 'null', // not null
         nickname: 'null',
-        ext: 'null'
+        ext: 'null',
       }
       const data = await this.send(params)
       resolve(data)
@@ -114,7 +115,7 @@ class WechatBot extends Task {
         content: '',
         nickname: 'null',
         ext: 'null',
-        ...options
+        ...options,
       }
       this.wechatWebSocket.send(JSON.stringify(params))
 
@@ -126,7 +127,8 @@ class WechatBot extends Task {
             // 文本消息需要判断状态
             if (data.status === 'SUCCSESSED') {
               resolve(data)
-            } else {
+            }
+            else {
               reject(data)
             }
             break
@@ -164,12 +166,14 @@ class WechatBot extends Task {
 
         if (Object.prototype.toString.call(this._personCache[targetKey]) === '[object Object]') {
           this._personCache[targetKey][targetValue] = targetWxid
-        } else {
+        }
+        else {
           this._personCache[targetKey] = {
-            [targetValue]: targetWxid
+            [targetValue]: targetWxid,
           }
         }
-      } else {
+      }
+      else {
         return Promise.reject(new Error('没有找到对应人或群'))
       }
     }
@@ -182,7 +186,7 @@ class WechatBot extends Task {
 
     await this.send({
       ...options,
-      wxid: targetWxid
+      wxid: targetWxid,
     })
   }
 }
@@ -191,7 +195,7 @@ class WechatBot extends Task {
  * 创建微信机器人实例
  * @param {object} wechatBotItem 微信机器人配置item
  */
-const createWeChatInstance = (wechatBotItem) => {
+function createWeChatInstance(wechatBotItem) {
   return new Promise((resolve, reject) => {
     wechatBotItem.ws = new WebSocket(wechatBotItem.wsUrl)
 
@@ -204,7 +208,7 @@ const createWeChatInstance = (wechatBotItem) => {
       wechatBotItem.init && wechatBotItem.init()
     })
 
-    wechatBotItem.ws.on('error', async e => {
+    wechatBotItem.ws.on('error', async (e) => {
       console.error(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 微信机器人【${wechatBotItem.name}】webSocket出错`, e)
 
       wechatBotItem.wechatBot = null
@@ -214,7 +218,7 @@ const createWeChatInstance = (wechatBotItem) => {
       resolve()
     })
 
-    wechatBotItem.ws.on('close', async() => {
+    wechatBotItem.ws.on('close', async () => {
       console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 微信机器人【${wechatBotItem.name}】webSocket断开`)
 
       wechatBotItem.wechatBot = null
@@ -230,14 +234,14 @@ const createWeChatInstance = (wechatBotItem) => {
  * 重新初始化微信机器人
  * @param {object} wechatBotItem 微信机器人配置item
  */
-const webSocketReconnect = (wechatBotItem) => {
+function webSocketReconnect(wechatBotItem) {
   return new Promise((resolve, reject) => {
     if (wechatBotItem._reconnectTimer) {
       clearTimeout(wechatBotItem._reconnectTimer)
       wechatBotItem._reconnectTimer = null
     }
     // 使用定时器控制请求频率，避免请求过多 失败会再次调用重新初始化方法，直到连接成功
-    wechatBotItem._reconnectTimer = setTimeout(async() => {
+    wechatBotItem._reconnectTimer = setTimeout(async () => {
       console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} 正在尝试重连微信机器人【${wechatBotItem.name}】webSocket...`)
 
       // 创建成功就把定时器变量置空释放内存
@@ -252,8 +256,8 @@ const webSocketReconnect = (wechatBotItem) => {
  * proxy 劫持 wechatBots，方便 wechatBots.熊小三.send() 直接访问机器人实例方法，而不是 wechatBots.熊小三.wechatBot.send()
  * @param {object} wechatBots 微信机器人配置对象
  */
-const proxyWechatBots = (wechatBots) => {
-  Object.keys(wechatBots).forEach(key => {
+function proxyWechatBots(wechatBots) {
+  Object.keys(wechatBots).forEach((key) => {
     wechatBots[key] = new Proxy(wechatBots[key], {
       get(target, property, receiver) {
         if (Reflect.has(target, property)) {
@@ -268,7 +272,7 @@ const proxyWechatBots = (wechatBots) => {
           return Reflect.get(wechatBot, property)
         }
         return undefined
-      }
+      },
     })
   })
 }
@@ -290,23 +294,23 @@ const wechatBots = {
       wechatBot
         .task({
           name: '熊猫阁基友群定时推送',
-          handle: wechatBot => JiYouGroupPush(wechatBot)
+          handle: wechatBot => JiYouGroupPush(wechatBot),
         })
         .task({
           name: '指令控制软路由',
-          handle: wechatBot => openwrt({ wechatBot })
+          handle: wechatBot => openwrt({ wechatBot }),
         })
         .use(wechatBot.getAllTask()) // 注入定义的所有任务
         .run()
-    }
-  }
+    },
+  },
 }
 
 /**
  * 初始化所有微信机器人
  */
-const wechatBotInit = async() => {
-  await Promise.all(Object.keys(wechatBots).map(async key => {
+async function wechatBotInit() {
+  await Promise.all(Object.keys(wechatBots).map(async (key) => {
     await createWeChatInstance(wechatBots[key])
   }))
 
@@ -318,5 +322,5 @@ const wechatBotInit = async() => {
 export {
   wechatBotInit,
   wechatBots,
-  CODES
+  CODES,
 }

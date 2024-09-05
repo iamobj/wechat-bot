@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-function-scoping */
 // 指令控制软路由 TODO:有时间用类重写 op 类
 import { db } from '#src/models/index.js'
 import { openSsh } from '#src/utils/ssh.js'
@@ -6,12 +7,12 @@ let wechatBotIns
 let sshIns
 let wxData // 微信接收到的数据
 const defaults = {
-  eventName: 'op'
+  eventName: 'op',
 }
 
 /**
  * 获取端口转发所有规则
- * @param {Boolean} isSort 是否开启排序 端口状态为on的排前面
+ * @param {boolean} isSort 是否开启排序 端口状态为on的排前面
  * @returns 返回规则列表
  */
 async function getPortForwardList(isSort = true) {
@@ -38,8 +39,8 @@ async function getPortForwardList(isSort = true) {
 // 端口转发开关
 async function portForwardSwitch(type, port) {
   const forwardTypeMap = {
-    on: on,
-    off: off
+    on,
+    off,
   }
 
   try {
@@ -47,15 +48,16 @@ async function portForwardSwitch(type, port) {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: `${type} ${port} success`
+      content: `${type} ${port} success`,
     })
 
     portForwardList()
-  } catch (e) {
+  }
+  catch (e) {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: `${type} ${port} fail`
+      content: `${type} ${port} fail`,
     })
 
     portForwardList()
@@ -95,7 +97,8 @@ async function portForwardSwitch(type, port) {
 
       const target = list.find(item => item.src_dport === port)
       return target
-    } catch (e) {
+    }
+    catch (e) {
       return Promise.reject(e)
     }
   }
@@ -115,13 +118,14 @@ async function portForwardList() {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content
+      content,
     })
-  } catch (e) {
+  }
+  catch (e) {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: 'get port forward list fail'
+      content: 'get port forward list fail',
     })
     return Promise.reject(e)
   }
@@ -134,13 +138,14 @@ async function restartRouter() {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: 'reboot success'
+      content: 'reboot success',
     })
-  } catch (e) {
+  }
+  catch (e) {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: 'reboot fail'
+      content: 'reboot fail',
     })
     return Promise.reject(e)
   }
@@ -156,13 +161,14 @@ async function getPublicIp() {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: stdout
+      content: stdout,
     })
-  } catch (e) {
+  }
+  catch (e) {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: wxData.wxid,
-      content: 'get public ip fail'
+      content: 'get public ip fail',
     })
     return Promise.reject(e)
   }
@@ -173,7 +179,7 @@ const fnMap = {
   dkzf: portForwardSwitch,
   dkzfls: portForwardList,
   reboot: restartRouter,
-  ip: getPublicIp
+  ip: getPublicIp,
 }
 
 async function handleOpenwrt(data) {
@@ -185,7 +191,7 @@ async function handleOpenwrt(data) {
     await wechatBotIns.sendByTarget({
       targetKey: 'wxid',
       targetValue: data.wxid,
-      content: '你没有权限使用该功能'
+      content: '你没有权限使用该功能',
     })
     return
   }
@@ -206,6 +212,6 @@ export default ({ wechatBot }) => {
   wechatBot.registerRecvMsgEvent({
     eventName: defaults.eventName,
     type: 'text',
-    fn: handleOpenwrt
+    fn: handleOpenwrt,
   })
 }

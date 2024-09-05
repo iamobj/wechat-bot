@@ -5,7 +5,7 @@ import modelsInit from '#src/models/index.js'
 
 const defaults = {
   pluginName: 'sequelize',
-  instance: 'sequelize'
+  instance: 'sequelize',
 }
 
 async function sequelizePlugin(fastify, opts, done) {
@@ -16,21 +16,22 @@ async function sequelizePlugin(fastify, opts, done) {
     username: configs.db.DATABASE_USER_NAME,
     password: configs.db.DATABASE_USER_PASSWORD,
     host: configs.db.DATABASE_HOST,
-    port: configs.db.DATABASE_PORT
+    port: configs.db.DATABASE_PORT,
   })
 
   try {
     await sequelize.authenticate()
     const db = await modelsInit(sequelize)
-    sequelize.sync()
+    await sequelize.sync()
     fastify.decorate(defaults.instance, db)
-  } catch (e) {
+  }
+  catch (e) {
     console.error('数据库连接失败', e)
   }
 
   fastify.addHook(
     'onClose',
-    (instance, done) => sequelize.close().then(() => done())
+    (instance, done) => sequelize.close().then(() => done()),
   )
 
   done()
@@ -38,7 +39,7 @@ async function sequelizePlugin(fastify, opts, done) {
 
 export default fp(sequelizePlugin, {
   name: defaults.pluginName,
-  dependencies: [configDefaults.pluginName]
+  dependencies: [configDefaults.pluginName],
 })
 
 export const sequelizeDefaults = defaults

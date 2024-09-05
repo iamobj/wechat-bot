@@ -11,7 +11,7 @@ class Task {
    * 定义任务
    * @param {string} name 任务名称
    * @param {string[]} deps 当前任务所依赖的任务名称，待依赖任务完成后再执行
-   * @param {function} handle 任务方法
+   * @param {Function} handle 任务方法
    * @param {*} config 任务额外参数
    * @returns 实例
    */
@@ -28,21 +28,22 @@ class Task {
       name,
       deps,
       handle,
-      config
+      config,
     }
     return this
   }
 
   /**
    * 执行任务方法
-   * @param {object | function} task 任务方法
+   * @param {object | Function} task 任务方法
    * @param {*} arg 任务参数
    * @returns
    */
   _taskHandle(task, arg) {
     if (typeof task.install === 'function') {
       return task.install.apply(task.install, arg)
-    } else if (typeof task === 'function') {
+    }
+    else if (typeof task === 'function') {
       return task.apply(task, arg)
     }
   }
@@ -55,10 +56,11 @@ class Task {
   async _getTaskPromise(key) {
     const task = this.taskPool[key]
     if (!task.promise) {
-      task.promise = new Promise(async resolve => {
+      // eslint-disable-next-line no-async-promise-executor
+      task.promise = new Promise(async (resolve) => {
         await Promise.all(task.deps.map(key => this._getTaskPromise(key)))
         // 改用settimeout，可以让外层的promise 异常捕获更快
-        setTimeout(async() => {
+        setTimeout(async () => {
           await this._taskHandle(task.handle, [this].concat(task.config))
           resolve(true)
         }, 0)
@@ -69,7 +71,7 @@ class Task {
 
   /**
    * 注入任务
-   * @param {string | string[] | function} task 任务名、任务名数组、任务方法
+   * @param {string | string[] | Function} task 任务名、任务名数组、任务方法
    * @param {*} config 任务额外参数，task 为任务方法时需要才需要传
    * @returns 实例
    */
@@ -77,11 +79,12 @@ class Task {
     if (typeof task === 'string' || Array.isArray(task)) {
       // 注入任务池中的任务
       const tasks = [].concat(task) // 转为数组
-      this.queue.push(async() => {
+      this.queue.push(async () => {
         await Promise.all(tasks
           .map(key => this._getTaskPromise(key)))
       })
-    } else {
+    }
+    else {
       // 注入指定任务
       this.queue.push(() => this._taskHandle(task, [this].concat(config)))
     }
@@ -104,7 +107,7 @@ class Task {
    * @param {number} timeout 等待的时间，单位毫秒
    */
   sleep(timeout = 0) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         resolve(true)
       }, timeout)

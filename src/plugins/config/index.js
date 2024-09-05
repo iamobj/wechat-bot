@@ -2,7 +2,7 @@ import fp from 'fastify-plugin'
 
 const defaults = {
   pluginName: 'configs',
-  instance: 'configs'
+  instance: 'configs',
 }
 
 async function configPlugin(fastify, opts, done) {
@@ -13,7 +13,7 @@ async function configPlugin(fastify, opts, done) {
 }
 
 export default fp(configPlugin, {
-  name: defaults.pluginName
+  name: defaults.pluginName,
 })
 
 export const configDefaults = defaults

@@ -1,17 +1,18 @@
 import { NodeSSH } from 'node-ssh'
 
-export const openSsh = async(data) => {
+export async function openSsh(data) {
   try {
     const { type } = data
     if (type === 'sshAccount') {
       return await openSshByAccount(data)
     }
-  } catch (e) {
+  }
+  catch (e) {
     return Promise.reject(e)
   }
 }
 
-export const openSshByAccount = async(data) => {
+export async function openSshByAccount(data) {
   const ssh = new NodeSSH()
   const { host, port, account, password } = data
   try {
@@ -19,10 +20,11 @@ export const openSshByAccount = async(data) => {
       host,
       port,
       username: account,
-      password
+      password,
     })
     return ssh
-  } catch (e) {
+  }
+  catch (e) {
     return Promise.reject(e)
   }
 }

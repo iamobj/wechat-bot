@@ -4,4 +4,4 @@ FROM registry.cn-shenzhen.aliyuncs.com/iamc/wechat-bot:base
 COPY . .
 
 # 启动
-CMD yarn start
+CMD pnpm start

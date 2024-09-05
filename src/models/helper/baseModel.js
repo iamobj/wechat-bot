@@ -11,14 +11,14 @@ class BaseModel extends Model {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
-      ...attributes
+      ...attributes,
     }
 
     const ops = {
       paranoid: true, // 软删除
-      ...options
+      ...options,
     }
     const model = super.init(attrs, ops)
     return model

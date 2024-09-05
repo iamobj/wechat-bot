@@ -1,7 +1,7 @@
-export default async(fastify, opts) => {
+export default async (fastify, opts) => {
   const { wechatBots, sequelize } = fastify
 
-  fastify.get('/', async(req, reply) => {
+  fastify.get('/', async (req, reply) => {
     const res = await wechatBots.熊小三.getPersonList()
     // await wechatBots.熊小三.sendByTarget({
     //   targetKey: 'wxcode',
@@ -11,15 +11,15 @@ export default async(fastify, opts) => {
     return res
   })
 
-  fastify.post('/sendMsg', async(req, reply) => {
+  fastify.post('/sendMsg', async (req, reply) => {
     const { authCode, wechatBotName = '熊小三', content, targetKey, targetValue } = req.body
     const user = await sequelize.user.findOne({
-      where: { authCode }
+      where: { authCode },
     })
     if (!user) {
       reply.send({
         statusCode: 1,
-        message: '无效的authCode'
+        message: '无效的authCode',
       })
       return
     }
@@ -27,7 +27,7 @@ export default async(fastify, opts) => {
     if (user.isDisable) {
       reply.send({
         statusCode: 1,
-        message: 'authCode已被禁用'
+        message: 'authCode已被禁用',
       })
       return
     }
@@ -35,7 +35,7 @@ export default async(fastify, opts) => {
     if (user.expirationDate && new Date() > user.expirationDate) {
       reply.send({
         statusCode: 1,
-        message: 'authCode已过期'
+        message: 'authCode已过期',
       })
       return
     }
@@ -54,12 +54,12 @@ export default async(fastify, opts) => {
     await wechatBots[wechatBotName].sendByTarget({
       targetKey: _targetKey,
       targetValue: _targetValue,
-      content
+      content,
     })
 
     reply.send({
       statusCode: 0,
-      message: 'success'
+      message: 'success',
     })
   })
 }

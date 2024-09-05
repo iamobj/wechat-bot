@@ -1,49 +1,46 @@
 {
   "name": "wechat-bot",
+  "type": "module",
   "version": "0.0.1",
   "description": "微信机器人",
-  "main": "./src/app.js",
-  "type": "module",
-  "imports": {
-    "#src/*": "./src/*"
-  },
-  "scripts": {
-    "prepare": "husky install",
-    "start": "fastify start -p 4300 -l info ./src/app.js",
-    "dev": "fastify start -p 4301 -w -l info -P ./src/app.js",
-    "lint": "eslint \"src/**/*.js\" --fix",
-    "commit": "./node_modules/cz-customizable/standalone.js"
-  },
-  "keywords": [],
   "author": {
     "name": "iamc",
     "email": "twboss8@126.com"
   },
   "license": "ISC",
+  "keywords": [],
+  "main": "./src/app.js",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install; fi",
+    "start": "fastify start -p 4300 -l info ./src/app.js",
+    "dev": "fastify start -p 4301 -w -l info -P ./src/app.js",
+    "lint": "eslint \"src/**/*.js\" --fix",
+    "commit": "./node_modules/cz-customizable/standalone.js"
+  },
   "dependencies": {
-    "axios": "^0.26.1",
-    "dayjs": "^1.10.6",
-    "fastify": "^3.0.0",
-    "fastify-autoload": "^3.3.1",
-    "fastify-cli": "^2.13.0",
-    "fastify-plugin": "^3.0.0",
-    "fastify-sensible": "^3.1.0",
-    "node-schedule": "^2.0.0",
-    "node-ssh": "12.0.2",
-    "pg": "^8.7.1",
+    "@fastify/autoload": "^5.10.0",
+    "@fastify/sensible": "^5.6.0",
+    "axios": "^1.7.7",
+    "dayjs": "^1.11.13",
+    "fastify": "^4.28.1",
+    "fastify-cli": "^6.3.0",
+    "fastify-plugin": "^5.0.0",
+    "node-schedule": "^2.1.1",
+    "node-ssh": "13.2.0",
+    "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.13.0",
-    "ws": "^7.5.3"
+    "sequelize": "^6.37.3",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^3.1.0",
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
     "cz-customizable": "^6.3.0",
-    "eslint": "^7.31.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0",
+    "eslint": "^9.9.1",
     "husky": "^7.0.1",
     "lint-staged": "^11.0.1",
     "tap": "^15.0.9"

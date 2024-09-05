@@ -3,5 +3,5 @@ import openwrt from './openwrt.js'
 
 export {
   timerSend,
-  openwrt
+  openwrt,
 }

@@ -2,5 +2,5 @@
 import Task from './taskClass.js'
 
 export {
-  Task
+  Task,
 }
