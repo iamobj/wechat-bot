@@ -148,6 +148,57 @@ class WechatBot extends Task {
   }
 
   /**
+   * 发送AT消息，只支持 AT 一个用户
+   * @param {object} options
+   * @param {string} options.roomid 群id
+   * @param {string} options.wxid 需要at的用户id
+   * @param {string} options.content 消息内容
+   * @param {string} [options.nickname] 需要at的用户昵称，这里传入的会填入到消息中，at 符号后面会显示这里传入的昵称，不填则只是 at 空白
+   * @returns
+   */
+  sendAtMsg(options) {
+    const { roomid, wxid, content, nickname } = options
+    return new Promise((resolve, reject) => {
+      const params = {
+        id: this._createId(),
+        type: CODES.AT_MSG,
+        roomid,
+        wxid,
+        content,
+        nickname,
+        ext: 'null',
+      }
+      this.wechatWebSocket.send(JSON.stringify(params))
+
+      const that = this
+      this.wechatWebSocket.addEventListener('message', function handle(d) {
+        const data = JSON.parse(d.data)
+        switch (data.type) {
+          case CODES.TXT_MSG:
+            // 文本消息需要判断状态
+            if (data.status === 'SUCCSESSED') {
+              resolve(data)
+            }
+            else {
+              reject(data)
+            }
+            break
+
+          case params.type:
+            resolve(data)
+            break
+          default:
+            reject(data)
+            break
+        }
+
+        // 移除监听事件
+        that.wechatWebSocket.removeEventListener('message', handle)
+      })
+    })
+  }
+
+  /**
    * 通过匹配目标字段发送消息（最好是通过微信号发送，因为微信号是唯一的）
    * @param {string} targetKey 目标key（可以是personList属性中任一） eg:name-微信名称 remarks-备注名称 wxcode-微信号
    * @param {string} targetValue 对应目标key的值
@@ -155,7 +206,7 @@ class WechatBot extends Task {
    */
   async sendByTarget({ targetKey, targetValue, ...options }) {
     // 先从缓存里找
-    let targetWxid = this._personCache?.[targetKey]?.[targetValue]
+    let targetWxid = targetKey === 'wxid' ? targetValue : this._personCache?.[targetKey]?.[targetValue]
 
     // 缓存里没有找到就实时请求寻找，找到了缓存起来方便下次查找
     if (!targetWxid) {

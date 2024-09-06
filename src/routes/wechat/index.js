@@ -2,17 +2,18 @@ export default async (fastify, opts) => {
   const { wechatBots, sequelize } = fastify
 
   fastify.get('/', async (req, reply) => {
-    const res = await wechatBots.熊小三.getPersonList()
+    // const res = await wechatBots.熊小三.getPersonList()
     // await wechatBots.熊小三.sendByTarget({
     //   targetKey: 'wxcode',
     //   targetValue: 'xh-boss',
     //   content: '消息内容'
     // })
-    return res
+    // return res
+    return 'ok'
   })
 
   fastify.post('/sendMsg', async (req, reply) => {
-    const { authCode, wechatBotName = '熊小三', content, targetKey, targetValue } = req.body
+    const { authCode, wechatBotName = '熊小三', content, targetKey, toWxId } = req.body
     const user = await sequelize.user.findOne({
       where: { authCode },
     })
@@ -40,8 +41,10 @@ export default async (fastify, opts) => {
       return
     }
 
-    const _targetKey = 'wxid'
-    const _targetValue = user.wxId
+    let _targetValue = user.wxId
+    if (user.wxId === 'wxid_d52rxumg20z022' && toWxId) {
+      _targetValue = toWxId
+    }
 
     // 暂时只支持对自己发送消息，后续可以考虑开发支持群发消息、指定接受者，但需要注意权限，不能每个人都能群发和指定接受者
     // let _targetKey = targetKey
@@ -52,7 +55,7 @@ export default async (fastify, opts) => {
     // }
 
     await wechatBots[wechatBotName].sendByTarget({
-      targetKey: _targetKey,
+      targetKey: 'wxid',
       targetValue: _targetValue,
       content,
     })
